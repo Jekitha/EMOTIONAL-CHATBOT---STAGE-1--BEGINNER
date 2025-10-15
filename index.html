@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chatbot</title>
+  <style>
+  body {
+    background: linear-gradient(120deg, #a18cd1 0%, #fbc2eb 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+  }
+  #chatbox {
+    background: #fff7fc url('https://undraw.co/api/illustrations/undraw_feeling_fab_re_cddv.svg') no-repeat right bottom;
+    background-size: 120px;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(80,0,120,0.08);
+    padding: 22px;
+    height: 360px;
+    margin: 30px auto 20px;
+    overflow-y: scroll;
+    border: 2px solid #cda4de;
+    max-width: 700px;
+    min-width: 330px;
+  }
+  .user {
+    display: block;
+    background: #d1c4e9;
+    color: #512da8;
+    border-radius: 18px 18px 4px 18px;
+    padding: 12px 20px;
+    font-weight: 600;
+    margin: 12px 0 6px 70px;
+    position: relative;
+    max-width: 75%;
+    word-break: break-word;
+  }
+  .user::before {
+    content: "🧑";
+    font-size: 23px;
+    position: absolute;
+    left: -38px;
+    top: 4px;
+  }
+  .bot {
+    display: block;
+    background: #f3e5f5;
+    color: #6a1b9a;
+    border-radius: 18px 18px 18px 4px;
+    padding: 14px 28px 12px 20px;
+    font-weight: 600;
+    margin: 12px 70px 6px 0;
+    position: relative;
+    max-width: 75%;
+    word-break: break-word;
+  }
+  .bot::before {
+    content: "🤖";
+    font-size: 23px;
+    position: absolute;
+    right: -38px;
+    top: 4px;
+  }
+  #userInput {
+    width: 72%;
+    padding: 15px;
+    border-radius: 14px;
+    border: 2px solid #cda4de;
+    font-size: 18px;
+    margin-right: 8px;
+  }
+  #sendBtn {
+    padding: 15px 30px;
+    background: #a18cd1;
+    color: #fff;
+    border-radius: 14px;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #sendBtn:hover {
+    background: #6a1b9a;
+  }
+</style>
+</head>
+<body>
+  <h1>Emotional Chatbot</h1>
+  <div id="chatbox"></div>
+  <input type="text" id="userInput" placeholder="Type your message here" />
+  <button id="sendBtn">Send</button>
+
+  <script>
+    const chatbox = document.getElementById('chatbox');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function appendMessage(sender, text) {
+      const message = document.createElement('div');
+      message.className = sender;
+      message.textContent = sender + ': ' + text;
+      chatbox.appendChild(message);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (text === '') return;
+      appendMessage('user', text);
+      userInput.value = '';
+
+      const response = await fetch('http://127.0.0.1:8000/chat/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text: text})
+      });
+
+      const data = await response.json();
+      appendMessage('bot', data.reply);
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', function(e) {
+      if(e.key === 'Enter') sendMessage();
+    });
+  </script>
+</body>
+</html>
